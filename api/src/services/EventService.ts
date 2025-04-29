@@ -13,6 +13,7 @@ export class EventService {
     static async getAllEvents(): Promise<Event[]> {
         const result = await pool.request().query(`
             SELECT * FROM Evenements
+            ORDER BY Horodate ASC
         `);
         return result.recordset as Event[];
     }

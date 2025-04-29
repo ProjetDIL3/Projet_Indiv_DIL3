@@ -6,12 +6,20 @@ import { csrfUtils } from '../utils/csrfUtils';
 import { refreshTokenService } from '../services/refreshTokenService';
 import { UserService } from '../services/UserService';
 import CustomError from '../utils/CustomError';
+import { validateLoginInput } from '../utils/validationUtils';
+
 
 
 export class AuthController {
     static async login(req: Request, res: Response, next: NextFunction) {
         try {
             const { Email, password } = req.body;
+
+            const validationErrors = validateLoginInput(Email, password);
+            if (validationErrors.length > 0) {
+                throw new CustomError(400, validationErrors.join(', '));
+            }
+
             const user = await AuthService.login(Email, password);
             if (!user) {
                 throw new CustomError(401, 'Identifiants non valides');
