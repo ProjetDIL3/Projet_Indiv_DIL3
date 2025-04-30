@@ -1,13 +1,59 @@
-# Projet_Indiv_DIL3
-# Cecilia Tomassi DIL3 2024/25
+# MagicAngular
 
-Le projet vise à créer un système de gestion de données, composé des parties principales suivantes:
-•	Un espace web privé pour l'administrateur accessible par authentification, dédié à la gestion des données. Cet espace permet de voir, ajouter, modifier et supprimer des informations dans une base de données.
-•	Une page web sans authentification qui permet de consulter l’entité dans la base des données.
-•	Une API qui fait le lien entre la base de données et les applications (web et mobile) et permet aussi de réaliser les opérations CRUD (ajout, lecture, modification, suppression).
-•	Une application mobile, pour consulter les données sur smartphone ou tablette, et qui permet aussi d’ajouter des données dans une entité.
+This project was generated using [Angular CLI](https://github.com/angular/angular-cli) version 19.2.9.
 
-Contexte du projet
-L'idée que j'ai eue pour la réalisation de ce projet est de créer un site web dédié à la gestion, création et visualisation d'événements, notamment des tournois, liés au jeu de cartes Magic The Gathering.
- 
-Dans ce projet, l’ application de gestion des événements sera créé pour les magasins, qui pourront organiser des tournois amicaux soit dans leur propre point de vente, soit dans un lieu loué et préapprouvé accessible au public.
+## Development server
+
+To start a local development server, run:
+
+```bash
+ng serve
+```
+
+Once the server is running, open your browser and navigate to `http://localhost:4200/`. The application will automatically reload whenever you modify any of the source files.
+
+## Code scaffolding
+
+Angular CLI includes powerful code scaffolding tools. To generate a new component, run:
+
+```bash
+ng generate component component-name
+```
+
+For a complete list of available schematics (such as `components`, `directives`, or `pipes`), run:
+
+```bash
+ng generate --help
+```
+
+## Building
+
+To build the project run:
+
+```bash
+ng build
+```
+
+This will compile your project and store the build artifacts in the `dist/` directory. By default, the production build optimizes your application for performance and speed.
+
+## Running unit tests
+
+To execute unit tests with the [Karma](https://karma-runner.github.io) test runner, use the following command:
+
+```bash
+ng test
+```
+
+## Running end-to-end tests
+
+For end-to-end (e2e) testing, run:
+
+```bash
+ng e2e
+```
+
+Angular CLI does not come with an end-to-end testing framework by default. You can choose one that suits your needs.
+
+## Additional Resources
+
+For more information on using the Angular CLI, including detailed command references, visit the [Angular CLI Overview and Command Reference](https://angular.dev/tools/cli) page.
