@@ -6,7 +6,7 @@
   
       <mat-progress-bar *ngIf="loading" mode="indeterminate"></mat-progress-bar>
   
-      <!-- Visualizzazione degli errori del server -->
+     
       <div *ngIf="serverErrors.length > 0" class="server-errors">
         <p *ngFor="let error of serverErrors" class="error-message">
           {{ error }}

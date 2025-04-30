@@ -50,7 +50,7 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    // Reset degli errori precedenti
+    
     this.serverErrors = [];
     
     if (this.loginForm.invalid) {
@@ -72,14 +72,13 @@ export class LoginComponent {
       error: (error: HttpErrorResponse) => {
         console.error('Login error:', error);
         
-        // Utilizza il servizio centralizzato per gestire gli errori
+
         this.serverErrors = this.errorService.getErrorMessages(error);
         this.loading = false;
       }
     });
   }
 
-  // Helper methods for form validation
   get emailControl() { return this.loginForm.get('email'); }
   get passwordControl() { return this.loginForm.get('password'); }
 }
