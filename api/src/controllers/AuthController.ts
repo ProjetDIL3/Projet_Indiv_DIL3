@@ -30,7 +30,7 @@ export class AuthController {
             const csrfToken = csrfUtils.generateCSRFToken();
 
             await refreshTokenService.save(
-                jwtUtils.verifyRefreshToken(refreshToken).jti || (() => { throw new CustomError(400, 'Invalid token ID'); })(),
+                jwtUtils.verifyRefreshToken(refreshToken).jti || (() => { throw new CustomError(400, 'ID de token invalide'); })(),
                 user.IdUtilisateur,
                 new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
             );
@@ -56,12 +56,12 @@ export class AuthController {
             const { refreshToken } = req.body;
             const decoded = jwtUtils.verifyRefreshToken(refreshToken);
     
-            if (!decoded.jti) throw new CustomError(400, 'Token ID non valido');
+            if (!decoded.jti) throw new CustomError(400, 'ID de token invalide');
             const validToken = await refreshTokenService.findValidToken(decoded.jti);
-            if (!validToken) throw new CustomError(401, 'Refresh token non valido');
+            if (!validToken) throw new CustomError(401, 'Refresh token invalide');
     
             const user = await UserService.getUserById(decoded.userId);
-            if (!user) throw new CustomError(404, 'Utente non trovato');
+            if (!user) throw new CustomError(404, 'Utilisateur non trouvé');
     
             const newAccessToken = jwtUtils.generateAccessToken(user);
             const newCsrfToken = csrfUtils.generateCSRFToken();
@@ -76,15 +76,15 @@ export class AuthController {
     static async logout(req: Request, res: Response, next: NextFunction) {
         try {
             const { refreshToken } = req.body;
-            if (!refreshToken) throw new CustomError(400, 'Refresh token obbligatorio');
+            if (!refreshToken) throw new CustomError(400, 'Refresh token obligatoire');
     
             const decoded = jwtUtils.verifyRefreshToken(refreshToken);
-            if (!decoded.jti) throw new CustomError(400, 'Token ID non valido');
+            if (!decoded.jti) throw new CustomError(400, 'ID de token non valide');
             
             await refreshTokenService.revoke(decoded.jti);
             csrfUtils.deleteCSRFToken(decoded.userId);
     
-            res.status(200).json({ message: 'Logout effettuato con successo' });
+            res.status(200).json({ message: 'Déconnexion effectuée avec succès' });
         } catch (error) {
             next(error); 
         }

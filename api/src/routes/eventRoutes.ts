@@ -5,19 +5,19 @@ import { csrfUtils } from '../utils/csrfUtils';
 
 const router = Router();
 
-// Middleware condivisi per tutte le route protette
+// Middleware partagés pour toutes les routes protégées
 const protectedRoutesMiddleware = [
   jwtUtils.authenticateJWT, 
   csrfUtils.csrfProtection
 ];
 
-// Route protetta per la creazione eventi
+// Route protégée pour la création d'événements
 router.post('/events', 
   protectedRoutesMiddleware, 
   EventController.createEvent
 );
 
-// Route protetta per l'aggiornamento eventi
+// Route protégée pour la mise à jour d'événements
 router.put('/events/:id', 
   protectedRoutesMiddleware,
   EventController.updateEvent
@@ -30,7 +30,7 @@ router.delete('/events/:id',
 
 
 
-// Route pubblica (senza middleware)
+// Route publique (sans middleware)
 router.get('/events', EventController.getAllEvents);
 
 export default router
