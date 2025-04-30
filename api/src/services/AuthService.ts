@@ -18,7 +18,9 @@ export class AuthService {
 
     const user = result.recordset[0];
 
-
+    if (!user) {
+      throw new CustomError(401, 'Identifiants non valides');
+    }
 
     // Compare le mot de passe chiffré
     const passwordMatch = await bcrypt.compare(password, user.Mdepasse);

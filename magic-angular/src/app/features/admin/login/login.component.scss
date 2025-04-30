@@ -1,0 +1,75 @@
+.login-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: calc(100vh - 64px); 
+  width: 100vw;
+  position: fixed;
+  top: 64px; 
+  left: 0;
+  background-image: url('/images/Orzhov.jpg');
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+}
+
+.login-card {
+  max-width: 400px;
+  width: 100%;
+  padding: 20px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  background-color: rgba(255, 255, 255, 0.7); 
+  backdrop-filter: blur(5px); 
+  border-radius: 8px;
+}
+
+.full-width {
+  width: 100%;
+  margin-bottom: 15px;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 20px;
+
+  button {
+    width: 100%;
+    padding: 10px;
+  }
+}
+
+mat-card-header {
+  margin-bottom: 20px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+}
+
+mat-card-title {
+  font-size: 24px;
+  margin-bottom: 8px;
+}
+
+mat-card-subtitle {
+  font-size: 16px;
+}
+
+mat-progress-bar {
+  margin-bottom: 15px;
+}
+
+.server-errors {
+  background-color: #ffebee;
+  border-radius: 4px;
+  padding: 10px;
+  margin-bottom: 15px;
+}
+
+.error-message {
+  color: #d32f2f;
+  margin: 4px 0;
+  font-size: 14px;
+}

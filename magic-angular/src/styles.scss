@@ -2,3 +2,22 @@
 
 html, body { height: 100%; }
 body { margin: 0; font-family: Roboto, "Helvetica Neue", sans-serif; }
+
+
+.error-snackbar {
+    background-color: #d32f2f;
+    color: white;
+  }
+  
+  .server-errors {
+    background-color: #ffebee;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 15px;
+  }
+  
+  .error-message {
+    color: #d32f2f;
+    margin: 4px 0;
+    font-size: 14px;
+  }

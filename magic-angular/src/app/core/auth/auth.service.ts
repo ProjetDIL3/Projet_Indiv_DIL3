@@ -1,17 +1,15 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, tap, throwError } from 'rxjs';
+import { Observable, tap, throwError,catchError } from 'rxjs';
 import { Router } from '@angular/router';
 import { environment } from '../../../environments/environment';
+import { AuthUser } from '../models/user.model';
 
 interface AuthResponse {
   accessToken: string;
   refreshToken: string;
   csrfToken: string;
-  user: {
-    IdUtilisateur: string;
-    RoleAdmin: boolean;
-  };
+  user: AuthUser;
 }
 
 @Injectable({
@@ -50,6 +48,14 @@ export class AuthService {
       tap(response => {
         localStorage.setItem('access_token', response.accessToken);
         localStorage.setItem('csrf_token', response.csrfToken);
+      }),
+      catchError(error => {
+        // Si le token de rafraîchissement est invalide, expiré ou révoqué
+        if (error.status === 401 || error.status === 403) {
+          this.clearAuthData();
+          // Informer l'utilisateur qu'il doit se reconnecter
+        }
+        return throwError(() => error);
       })
     );
   }
