@@ -53,7 +53,6 @@ export class AuthService {
         // Si le token de rafraîchissement est invalide, expiré ou révoqué
         if (error.status === 401 || error.status === 403) {
           this.clearAuthData();
-          // Informer l'utilisateur qu'il doit se reconnecter
         }
         return throwError(() => error);
       })

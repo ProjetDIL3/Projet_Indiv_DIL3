@@ -1,11 +1,217 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { ActivatedRoute, Router } from '@angular/router';
+import { MatCardModule } from '@angular/material/card';
+import { MatIconModule } from '@angular/material/icon';
+import { MatButtonModule } from '@angular/material/button';
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+import { MatDividerModule } from '@angular/material/divider';
+import { DatePipe } from '@angular/common';
+import { switchMap, catchError } from 'rxjs/operators';
+import { of, Subscription } from 'rxjs';
+import * as L from 'leaflet';
+
+
+import { EventsService } from '../../../core/api/events.service';
+import { HeaderTitleService } from '../../../core/utils/header-title.service';
+import { Event } from '../../../core/models/event.model';
 
 @Component({
   selector: 'app-event-details',
-  imports: [],
+  standalone: true,
+  imports: [
+    CommonModule,
+    MatCardModule,
+    MatIconModule,
+    MatButtonModule,
+    MatProgressSpinnerModule,
+    MatDividerModule,
+    DatePipe
+  ],
   templateUrl: './event-details.component.html',
-  styleUrl: './event-details.component.scss'
+  styleUrls: ['./event-details.component.scss']
 })
-export class EventDetailsComponent {
+export class EventDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
+  event: Event | null = null;
+  loading = true;
+  error = false;
+  address: string = '';
+  private map: L.Map | null = null;
+  private subscriptions: Subscription[] = [];
 
+  constructor(
+    private route: ActivatedRoute,
+    private router: Router,
+    private eventsService: EventsService,
+    private headerTitleService: HeaderTitleService
+  ) {
+    this.fixLeafletIcons();
+  }
+
+  private fixLeafletIcons(): void {
+    const iconRetinaUrl = '/leaflet/marker-icon-2x.png';
+    const iconUrl = '/leaflet/marker-icon.png';
+    const shadowUrl = '/leaflet/marker-shadow.png';
+    
+    const iconDefault = L.icon({
+      iconRetinaUrl,
+      iconUrl,
+      shadowUrl,
+      iconSize: [25, 41],
+      iconAnchor: [12, 41],
+      popupAnchor: [1, -34],
+      tooltipAnchor: [16, -28],
+      shadowSize: [41, 41]
+    });
+    
+    L.Marker.prototype.options.icon = iconDefault;
+  }
+
+  ngOnInit(): void {
+    this.loadEventDetails();
+  }
+
+  ngAfterViewInit(): void {
+    // On initialise la carte après le chargement du composant
+  }
+
+  ngOnDestroy(): void {
+    this.headerTitleService.setTitle('');
+    this.subscriptions.forEach(sub => sub.unsubscribe());
+    
+    if (this.map) {
+      this.map.remove();
+    }
+  }
+
+  loadEventDetails(): void {
+    const sub = this.route.paramMap.pipe(
+      switchMap(params => {
+        const eventId = params.get('id');
+        if (!eventId) {
+          this.router.navigate(['/']);
+          return of(null);
+        }
+        return this.eventsService.getEventById(eventId).pipe(
+          catchError(err => {
+            console.error('Erreur lors de la récupération des détails de l\'événement:', err);
+            this.error = true;
+            this.loading = false;
+            return of(null);
+          })
+        );
+      })
+    ).subscribe(event => {
+      if (!event) return;
+      
+      this.event = event;
+      this.headerTitleService.setTitle(event.Nom);
+      
+      // Si l'événement n'a pas de magasin associé, on charge l'adresse
+      if (!event.MagasinNom) {
+        this.loadAddress();
+      }
+      
+      this.loading = false;
+      setTimeout(() => this.initMap(), 100);
+    });
+    
+    this.subscriptions.push(sub);
+  }
+
+  loadAddress(): void {
+    if (!this.event) return;
+    
+    const sub = this.eventsService.reverseGeocode(this.event.Latitude, this.event.Longitude)
+      .pipe(
+        catchError(error => {
+          console.error('Erreur lors de la récupération de l\'adresse:', error);
+          this.address = 'Adresse non disponible';
+          return of(null);
+        })
+      )
+      .subscribe(result => {
+        if (result) {
+          this.address = this.formatAddress(result);
+        } else {
+          this.address = 'Adresse non disponible';
+        }
+      });
+      
+    this.subscriptions.push(sub);
+  }
+  
+  formatAddress(nominatimResponse: any): string {
+    if (!nominatimResponse || !nominatimResponse.address) {
+      return 'Adresse non disponible';
+    }
+    
+    const address = nominatimResponse.address;
+    
+    const parts = [];
+    
+    if (address.road) parts.push(address.road);
+    if (address.house_number) parts.push(address.house_number);
+    if (address.city || address.town || address.village) {
+      parts.push(address.city || address.town || address.village);
+    }
+    if (address.postcode) parts.push(address.postcode);
+    if (address.country) parts.push(address.country);
+    
+    return parts.join(', ');
+  }
+  
+  initMap(): void {
+    if (!this.event) return;
+    
+    const mapElement = document.getElementById('map');
+    if (!mapElement) {
+      console.error('Conteneur de carte non trouvé');
+      return;
+    }
+    
+    // Crée la carte
+    this.map = L.map('map').setView([this.event.Latitude, this.event.Longitude], 14);
+    
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+    }).addTo(this.map);
+    
+    const marker = L.marker([this.event.Latitude, this.event.Longitude]).addTo(this.map);
+    
+    let popupText = `<b>${this.event.Nom}</b>`;
+    
+    if (this.event.MagasinNom) {
+      popupText += `<br>${this.event.MagasinNom}`;
+      popupText += `<br>${this.event.NumeroRue} ${this.event.Rue}, ${this.event.CP} ${this.event.Ville}`;
+    } 
+
+    else if (this.address) {
+      popupText += `<br>${this.address}`;
+    }
+    
+    marker.bindPopup(popupText).openPopup();
+  }
+
+  hasCustomImage(): boolean {
+    if (!this.event) return false;
+    return !!this.event.Image; 
+  }
+    
+  getEventImage(): string {
+    if (!this.event || !this.event.Image) return '';
+    return this.event.Image;
+  }
+  
+  
+  getMagasinAddress(): string {
+    if (!this.event) return '';
+    if (!this.event.MagasinNom) return this.address;
+    
+    return `${this.event.NumeroRue} ${this.event.Rue}, ${this.event.CP} ${this.event.Ville}`;
+  }
+  
+  goBack(): void {
+    this.router.navigate(['/']);
+  }
 }

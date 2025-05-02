@@ -3,7 +3,7 @@ export interface User {
     Nom: string;
     Prenom: string;
     Email: string;
-    Mdepasse?: string; // Meglio renderlo opzionale con ? per sicurezza
+    Mdepasse?: string; 
     RoleAdmin?: boolean;
 }
 

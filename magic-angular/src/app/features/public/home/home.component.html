@@ -1,1 +1,70 @@
-<p>home works!</p>
+<div class="events-container">
+    
+    <div *ngIf="loading" class="loading-container">
+      <mat-spinner diameter="50"></mat-spinner>
+      <p>Loading events...</p>
+    </div>
+  
+    <div *ngIf="error" class="error-message">
+      <mat-icon>error</mat-icon>
+      <p>Failed to load events. Please try again later.</p>
+      <button mat-raised-button color="primary" (click)="fetchEvents()">Retry</button>
+    </div>
+  
+    <div *ngIf="!loading && !error && filteredEvents.length === 0" class="no-events">
+      <mat-icon>event_busy</mat-icon>
+      <p>No events found.</p>
+    </div>
+    
+    <div class="events-grid">
+      <mat-card 
+        *ngFor="let event of filteredEvents" 
+        class="event-card"
+        (click)="openEventDetails(event.IdEvenement)">
+        
+        <div class="card-content-wrapper">
+          <mat-card-header>
+            <div mat-card-avatar class="event-avatar">
+              <img [src]="getEventImage(event)" alt="">
+            </div>
+            
+            <mat-card-title>{{ event.Nom }}</mat-card-title>
+          </mat-card-header>
+          
+          <mat-card-content>
+            <div class="event-info">
+              <div class="info-row" *ngIf="event.IdMagasin">
+                <mat-icon>store</mat-icon>
+                <span>Shop: To be implemented</span>
+              </div>
+              
+              <div class="info-row">
+                <mat-icon>calendar_today</mat-icon>
+                <span>{{ event.Horodate | date:'dd/MM/yyyy, HH:mm' }}</span>
+              </div>
+              
+              <div class="info-row">
+                <mat-icon>location_on</mat-icon>
+                <span *ngIf="!addressMap[event.IdEvenement]">Loading address...</span>
+                <span *ngIf="addressMap[event.IdEvenement]">{{ addressMap[event.IdEvenement] }}</span>
+              </div>
+            </div>
+          </mat-card-content>
+          
+          <mat-card-actions>
+            <button mat-button color="primary">Détails</button>
+          </mat-card-actions>
+        </div>
+      </mat-card>
+    </div>
+    
+    <mat-paginator
+      *ngIf="totalEvents > 0"
+      [length]="totalEvents"
+      [pageSize]="pageSize"
+      [pageSizeOptions]="pageSizeOptions"
+      [pageIndex]="pageIndex"
+      (page)="onPageChange($event)"
+      aria-label="Select page">
+    </mat-paginator>
+  </div>

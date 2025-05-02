@@ -1,1 +1,130 @@
-<p>event-details works!</p>
+<div class="event-details-container">
+
+  <div *ngIf="loading" class="loading-container">
+    <mat-spinner diameter="50"></mat-spinner>
+    <p>Chargement des détails...</p>
+  </div>
+  
+  <div *ngIf="error" class="error-message">
+    <mat-icon>error</mat-icon>
+    <p>Impossible de charger les détails de l'événement</p>
+    <button mat-raised-button color="primary" (click)="goBack()">Retour</button>
+  </div>
+  
+  <!-- Content principal -->
+  <div *ngIf="!loading && !error && event" class="event-content">
+    <div class="left-panel">
+
+      <div *ngIf="hasCustomImage()" class="event-image-container">
+        <img [src]="getEventImage()" alt="Event image" class="event-image">
+      </div>
+      
+      <mat-card class="event-info-card">
+        <mat-card-content>
+          <h1 class="event-title">{{ event.Nom }}</h1>
+          
+          <div class="info-section">
+            <div class="info-row location-row">
+              <mat-icon>location_on</mat-icon>
+              <div class="info-content">
+                <div *ngIf="event.MagasinNom" class="magasin-info">
+                  <p class="magasin-name">{{ event.MagasinNom }}</p>
+                  <p>{{ event.NumeroRue }} {{ event.Rue }}, {{ event.CP }} {{ event.Ville }}</p>
+                  <p *ngIf="event.MagasinTelephone">Téléphone: {{ event.MagasinTelephone }}</p>
+                  <a *ngIf="event.MagasinSiteWeb" [href]="event.MagasinSiteWeb" target="_blank" class="magasin-website">
+                    Site web <mat-icon class="external-link-icon">open_in_new</mat-icon>
+                  </a>
+                </div>
+                <div *ngIf="!event.MagasinNom">
+                  <p>{{ address }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+
+          <div class="info-section">
+            <div class="info-row">
+              <mat-icon>calendar_today</mat-icon>
+              <div class="info-content">
+                <p>{{ event.Horodate | date:'dd/MM/yyyy, HH:mm' }}</p>
+              </div>
+            </div>
+          </div>
+          
+        
+          <div *ngIf="event.Prix !== null && event.Prix !== undefined" class="info-section">
+            <div class="info-row">
+              <mat-icon>euro</mat-icon>
+              <div class="info-content">
+                <p>{{ event.Prix }} €</p>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div *ngIf="event.NomContact" class="info-section">
+            <div class="info-row">
+              <mat-icon>person</mat-icon>
+              <div class="info-content">
+                <p>{{ event.NomContact }}</p>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div class="info-section">
+            <div class="info-row">
+              <mat-icon>email</mat-icon>
+              <div class="info-content">
+                <p>{{ event.Email }}</p>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div *ngIf="event.TypeEvenement" class="info-section">
+            <div class="info-row">
+              <mat-icon>category</mat-icon>
+              <div class="info-content">
+                <p>{{ event.TypeEvenement }}</p>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div *ngIf="event.NomFormat" class="info-section">
+            <div class="info-row">
+              <mat-icon>style</mat-icon>
+              <div class="info-content">
+                <a [href]="event.FormatLink" target="_blank" class="format-link">
+                  {{ event.NomFormat }}
+                  <mat-icon class="external-link-icon">open_in_new</mat-icon>
+                </a>
+              </div>
+            </div>
+          </div>
+          
+          
+          <div *ngIf="event.Description" class="description-section">
+            <mat-divider></mat-divider>
+            <h2>Description</h2>
+            <p class="event-description">{{ event.Description }}</p>
+          </div>
+          
+          
+          <div class="action-buttons">
+            <button mat-raised-button color="primary" (click)="goBack()">
+              <mat-icon>arrow_back</mat-icon> Retour
+            </button>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+    
+    <div class="right-panel">
+      <!-- Map Leaflet -->
+      <div id="map" class="map-container"></div>
+    </div>
+  </div>
+</div>
