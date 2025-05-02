@@ -22,7 +22,6 @@ export class AuthService {
       throw new CustomError(401, 'Identifiants non valides');
     }
 
-    // Compare le mot de passe chiffré
     const passwordMatch = await bcrypt.compare(password, user.Mdepasse);
     
     if (!passwordMatch) {

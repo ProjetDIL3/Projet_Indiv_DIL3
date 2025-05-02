@@ -1,7 +1,7 @@
 import mssql from 'mssql';
 import dotenv from 'dotenv';
 
-// Charger les variables d'environnement depuis un fichier .env
+
 dotenv.config();
 
 const dbConfig: mssql.config = {

@@ -1,4 +1,3 @@
-// src/utils/csrfUtils.ts
 import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import CustomError from './CustomError';
@@ -33,7 +32,7 @@ export const csrfUtils = {
     const csrfToken = req.headers['x-xsrf-token'] as string;
 
     if (!userId || !csrfToken || !this.validateCSRFToken(userId, csrfToken)) {
-      return next(new CustomError(403, 'Token CSRF non valido'));
+      return next(new CustomError(403, 'Token CSRF pas valide'));
     }
     next();
   }

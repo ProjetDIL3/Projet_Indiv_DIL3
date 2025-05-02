@@ -3,6 +3,7 @@ import { EventController } from '../controllers/EventController';
 import { jwtUtils } from '../utils/jwtUtils';
 import { csrfUtils } from '../utils/csrfUtils';
 
+
 const router = Router();
 
 // Middleware partagés pour toutes les routes protégées
@@ -31,6 +32,8 @@ router.delete('/events/:id',
 
 
 // Route publique (sans middleware)
-router.get('/events', EventController.getAllEvents);
+router.get('/', EventController.getAllEvents);
+router.get('/:id', EventController.getEventById)
+
 
 export default router

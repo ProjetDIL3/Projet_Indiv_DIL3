@@ -1,4 +1,3 @@
-// src/services/EventService.ts
 import { pool } from '../config/dbConfig';
 import { Event } from '../interfaces/Event';
 import mssql from 'mssql';
@@ -21,19 +20,36 @@ export class EventService {
     /**
      * Récupère les détails d'un événement par ID
      */
-    static async getEventById(IdEvenement: string): Promise<Event | null> {
+    static async getEventById(IdEvenement: string): Promise<any | null> {
         const result = await pool.request()
             .input('IdEvenement', mssql.NChar(10), IdEvenement)
-            .query(`SELECT * FROM Evenements WHERE IdEvenement = @IdEvenement`);
+            .query(`
+                SELECT 
+                    e.*,
+                    f.NomFormat, 
+                    f.Link AS FormatLink,
+                    m.Nom AS MagasinNom, 
+                    m.NumeroRue, 
+                    m.Rue, 
+                    m.CP, 
+                    m.Ville, 
+                    m.Telephone AS MagasinTelephone,
+                    m.SiteWeb AS MagasinSiteWeb
+                FROM Evenements e
+                LEFT JOIN Formats f ON e.IdFormat = f.IdFormat
+                LEFT JOIN Magasins m ON e.IdMagasin = m.IdMagasin
+                WHERE e.IdEvenement = @IdEvenement
+            `);
+            
         if (result.recordset.length === 0) return null;
-        return result.recordset[0] as Event;
+        return result.recordset[0];
     }
 
     /**
      * Crée un nouvel événement
      */
     static async createEvent(eventData: Partial<Event>): Promise<Event> {
-        // Génère un nouvel ID
+        // Génère Id avec generateNextId
         const newId = await generateNextId('Evenements', 'IdEvenement');
 
         // Vérifie et convertit la date
@@ -48,7 +64,6 @@ export class EventService {
             throw new CustomError(400, "La date de l'événement est obligatoire");
         }
 
-        // Champs obligatoires
         if (!eventData.Nom || !eventData.Email || !eventData.IdUtilisateur || !eventData.IdFormat || !eventData.Latitude || !eventData.Longitude) {
             throw new CustomError(400, "Champs obligatoires manquants");
         }
@@ -98,11 +113,10 @@ export class EventService {
      * Met à jour un événement existant
      */
     static async updateEvent(id: string, updates: Partial<Event>): Promise<void> {
-        // Vérifie si l'événement existe
+    
         const existing = await this.getEventById(id);
         if (!existing) throw new CustomError(404, "Événement non trouvé");
 
-        // Prépare la requête dynamique
         const fields = [];
         const request = pool.request().input('IdEvenement', mssql.NChar(10), id);
 
@@ -178,4 +192,6 @@ export class EventService {
             .query(`DELETE FROM Evenements WHERE IdEvenement = @IdEvenement`);
         if (result.rowsAffected[0] === 0) throw new CustomError(404, "Événement non trouvé");
     }
+
+  
 }

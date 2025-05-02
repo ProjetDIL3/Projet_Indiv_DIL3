@@ -74,7 +74,6 @@ export function validateEventInput(event: Partial<Event>): string[] {
         errors.push("Le format de l'événement est obligatoire");
     }
     
-    // Validation optionnelle pour le prix
     if (event.Prix !== undefined && event.Prix !== null && event.Prix < 0) {
         errors.push("Le prix ne peut pas être négatif");
     }
@@ -88,7 +87,6 @@ export function validateEventInput(event: Partial<Event>): string[] {
 export function validateEventUpdateInput(event: Partial<Event>): string[] {
     const errors: string[] = [];
     
-    // Pour les mises à jour, valider uniquement les champs fournis
     if (event.Nom !== undefined) {
         if (event.Nom.trim() === '') {
             errors.push("Le nom de l'événement ne peut pas être vide");

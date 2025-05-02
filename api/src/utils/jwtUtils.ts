@@ -45,7 +45,7 @@ export const jwtUtils = {
   authenticateJWT(req: Request, res: Response, next: NextFunction): void {
     const authHeader = req.headers.authorization;
     if (!authHeader?.startsWith('Bearer ')) {
-      return next(new CustomError(401, "Token mancante"));
+      return next(new CustomError(401, "Token manquant"));
     }
 
     const token = authHeader.split(' ')[1];
@@ -54,7 +54,7 @@ export const jwtUtils = {
       req.user = { userId: decoded.userId, role: decoded.role };
       next();
     } catch (error) {
-      next(new CustomError(401, "Token invalido o scaduto"));
+      next(new CustomError(401, "Token invalide"));
     }
   }
 };

@@ -1,4 +1,3 @@
-// src/controllers/AuthController.ts
 import { NextFunction, Request, Response } from 'express';
 import { AuthService } from '../services/AuthService';
 import { jwtUtils } from '../utils/jwtUtils';

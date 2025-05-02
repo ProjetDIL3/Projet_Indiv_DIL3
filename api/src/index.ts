@@ -5,6 +5,8 @@ import { connectToDatabase } from './config/dbConfig';
 import 'dotenv/config';
 import CustomError from './utils/CustomError';
 import authRoutes from './routes/authRoutes'; 
+import eventRoutes from './routes/eventRoutes';
+
 
 
 const app = express();
@@ -22,10 +24,10 @@ app.use(express.json());
 
 // Routes
 app.use('/auth', authRoutes);
+app.use('/events', eventRoutes);
 
 
 // Custom error
-
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => { 
   if (err instanceof CustomError) {
     res.status(err.statusCode).json({ 
