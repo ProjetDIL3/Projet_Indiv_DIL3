@@ -92,7 +92,7 @@ export class MapService {
 
   // Ajouter un marqueur à une position spécifique
   addMarker(position: L.LatLngExpression, options: L.MarkerOptions = {}): L.Marker {
-    if (!this.map) throw new Error('Map not initialized');
+    if (!this.map) throw new Error('Map pas initialisée');
     
     const marker = L.marker(position, options);
     marker.addTo(this.map);
@@ -101,7 +101,7 @@ export class MapService {
 
   // Ajouter ou mettre à jour le marqueur sélectionné
   setSelectedMarker(position: L.LatLngExpression, popupContent?: string, draggable: boolean = true): L.Marker {
-    if (!this.map) throw new Error('Map not initialized');
+    if (!this.map) throw new Error('Map pas initialisée');
 
     // Supprimer le marqueur existant s'il y en a un
     if (this.selectedMarker) {
@@ -166,7 +166,7 @@ export class MapService {
 
   // Centrer la carte sur une position
   setView(position: L.LatLngExpression, zoom: number = 13): void {
-    if (!this.map) throw new Error('Map not initialized');
+    if (!this.map) throw new Error('Map pas initialisée');
     this.map.setView(position, zoom);
   }
 
