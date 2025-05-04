@@ -50,7 +50,6 @@ export class AuthService {
         localStorage.setItem('csrf_token', response.csrfToken);
       }),
       catchError(error => {
-        // Si le token de rafraîchissement est invalide, expiré ou révoqué
         if (error.status === 401 || error.status === 403) {
           this.clearAuthData();
         }
@@ -91,6 +90,10 @@ export class AuthService {
     
     const user = JSON.parse(userData);
     return user.RoleAdmin === true;
+  }
+
+  hasRefreshToken(): boolean {
+    return !!localStorage.getItem('refresh_token');
   }
   
   private clearAuthData(): void {

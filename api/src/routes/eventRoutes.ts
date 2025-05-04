@@ -9,22 +9,22 @@ const router = Router();
 // Middleware partagés pour toutes les routes protégées
 const protectedRoutesMiddleware = [
   jwtUtils.authenticateJWT, 
-  csrfUtils.csrfProtection
+  csrfUtils.csrfProtection.bind(csrfUtils)
 ];
 
 // Route protégée pour la création d'événements
-router.post('/events', 
+router.post('/', 
   protectedRoutesMiddleware, 
   EventController.createEvent
 );
 
 // Route protégée pour la mise à jour d'événements
-router.put('/events/:id', 
+router.put('/:id', 
   protectedRoutesMiddleware,
   EventController.updateEvent
 );
 
-router.delete('/events/:id', 
+router.delete('/:id', 
   protectedRoutesMiddleware,
   EventController.deleteEvent
 );

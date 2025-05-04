@@ -6,9 +6,8 @@ import CustomError from '../utils/CustomError';
 
 
 export class UserService {
-  /**
-   * Récupère un profil d'utilisateur par ID
-   */
+  
+// Recupere le profil d'un utilisateur par son ID
   static async getUserById(userId: string): Promise<User | null> {
     try {
       const result = await pool.request()

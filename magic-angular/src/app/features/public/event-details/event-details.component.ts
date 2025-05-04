@@ -1,30 +1,27 @@
 import { Component, OnInit, AfterViewInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
+
+import { MaterialModule } from '../../../shared/material/material.module';
 import { MatDividerModule } from '@angular/material/divider';
+
 import { DatePipe } from '@angular/common';
 import { switchMap, catchError } from 'rxjs/operators';
 import { of, Subscription } from 'rxjs';
 import * as L from 'leaflet';
+import jsPDF from 'jspdf';
 
 
 import { EventsService } from '../../../core/api/events.service';
 import { HeaderTitleService } from '../../../core/utils/header-title.service';
-import { Event } from '../../../core/models/event.model';
+import { MTGEvent } from '../../../core/models/event.model';
 
 @Component({
   selector: 'app-event-details',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
-    MatIconModule,
-    MatButtonModule,
-    MatProgressSpinnerModule,
+    MaterialModule,
     MatDividerModule,
     DatePipe
   ],
@@ -32,7 +29,7 @@ import { Event } from '../../../core/models/event.model';
   styleUrls: ['./event-details.component.scss']
 })
 export class EventDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
-  event: Event | null = null;
+  event: MTGEvent | null = null;
   loading = true;
   error = false;
   address: string = '';
@@ -49,9 +46,9 @@ export class EventDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private fixLeafletIcons(): void {
-    const iconRetinaUrl = '/leaflet/marker-icon-2x.png';
-    const iconUrl = '/leaflet/marker-icon.png';
-    const shadowUrl = '/leaflet/marker-shadow.png';
+    const iconRetinaUrl = 'leaflet/marker-icon-2x.png';
+    const iconUrl = 'leaflet/marker-icon.png';
+    const shadowUrl = 'leaflet/marker-shadow.png';
     
     const iconDefault = L.icon({
       iconRetinaUrl,
@@ -193,10 +190,116 @@ export class EventDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     marker.bindPopup(popupText).openPopup();
   }
 
+
+  exportToPdf(): void {
+    if (!this.event) return;
+    
+    // Crea il documento PDF
+    const pdf = new jsPDF();
+    const pageWidth = pdf.internal.pageSize.getWidth();
+    const margin = 20;
+    const contentWidth = pageWidth - (2 * margin);
+    
+    let yPosition = 20;
+    const lineHeight = 10;
+    
+    // Funzione per aggiungere testo con ritorno a capo automatico
+    const addWrappedText = (text: string, y: number, fontSize = 12): number => {
+      pdf.setFontSize(fontSize);
+      const lines = pdf.splitTextToSize(text, contentWidth);
+      pdf.text(lines, margin, y);
+      return y + (lineHeight * lines.length);
+    };
+    
+    // Titolo dell'evento
+    yPosition = addWrappedText(this.event.Nom, yPosition, 18);
+    yPosition += 10;
+    
+    // Data e ora
+    pdf.text('Date et heure:', margin, yPosition);
+    pdf.text(new Date(this.event.Horodate).toLocaleString('fr-FR'), margin + 40, yPosition);
+    yPosition += lineHeight;
+    
+    // Luogo
+    pdf.text('Lieu:', margin, yPosition);
+
+    
+    if (this.event.MagasinNom) {
+      pdf.text(this.event.MagasinNom, margin + 40, yPosition);
+      yPosition += lineHeight;
+      const addressText = `${this.event.NumeroRue || ''} ${this.event.Rue || ''}, ${this.event.CP || ''} ${this.event.Ville || ''}`.trim();
+      pdf.text(addressText, margin + 40, yPosition);
+      yPosition += lineHeight;
+      if (this.event.MagasinTelephone) {
+        pdf.text(`Téléphone: ${this.event.MagasinTelephone}`, margin + 40, yPosition);
+        yPosition += lineHeight;
+      }
+    } else if (this.address) {
+      pdf.text(this.address, margin + 40, yPosition);
+      yPosition += lineHeight;
+    }
+    
+    // Prezzo
+    if (this.event.Prix !== null && this.event.Prix !== undefined) {
+      pdf.text('Prix:', margin, yPosition);
+      pdf.text(`${this.event.Prix} €`, margin + 40, yPosition);
+      yPosition += lineHeight;
+    }
+    
+    // Contatto
+    if (this.event.NomContact) {
+      pdf.text('Contact:', margin, yPosition);
+      pdf.text(this.event.NomContact, margin + 40, yPosition);
+      yPosition += lineHeight;
+    }
+    
+    // Email
+    pdf.text('Email:', margin, yPosition);
+    pdf.text(this.event.Email, margin + 40, yPosition);
+    yPosition += lineHeight;
+    
+    // Tipo di evento
+    if (this.event.TypeEvenement) {
+      pdf.text('Type d\'événement:', margin, yPosition);
+      pdf.text(this.event.TypeEvenement, margin + 40, yPosition);
+      yPosition += lineHeight;
+    }
+    
+    // Formato
+    if (this.event.NomFormat) {
+      pdf.text('Format:', margin, yPosition);
+      pdf.text(this.event.NomFormat, margin + 40, yPosition);
+      yPosition += lineHeight;
+    }
+    
+    // Linea divisoria
+    yPosition += 5;
+    pdf.line(margin, yPosition, pageWidth - margin, yPosition);
+    yPosition += 10;
+    
+    // Descrizione
+    if (this.event.Description && this.event.Description.trim() !== '') {
+      pdf.text('Description', margin, yPosition);
+      yPosition += 8;
+      
+      const descLines = pdf.splitTextToSize(this.event.Description, contentWidth);
+      pdf.text(descLines, margin, yPosition);
+    }
+    
+    // Nome del file
+    const fileName = `evenement_${this.event.Nom.replace(/[^\w]/g, '_')}_${new Date().toISOString().slice(0,10)}.pdf`;
+    
+    // Salva il PDF
+    pdf.save(fileName);
+  }
+
+
+
   hasCustomImage(): boolean {
     if (!this.event) return false;
     return !!this.event.Image; 
   }
+
     
   getEventImage(): string {
     if (!this.event || !this.event.Image) return '';

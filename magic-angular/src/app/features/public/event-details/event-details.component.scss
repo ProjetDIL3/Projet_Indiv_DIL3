@@ -184,6 +184,13 @@
     overflow: hidden;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
   }
+
+  .action-buttons {
+    display: flex;
+    justify-content: flex-start;
+    gap: 1rem;  
+    margin-top: 2rem;
+  }
   
   // Media queries per rendere il design responsive
   @media (max-width: 768px) {

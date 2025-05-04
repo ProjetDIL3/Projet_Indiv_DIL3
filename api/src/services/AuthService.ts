@@ -6,9 +6,7 @@ import CustomError from '../utils/CustomError';
 
 export class AuthService {
   
-  /**
-   * Connecte l'utilisateur
-   */
+  // Connecte l'utilisateur et vérifie ses identifiants
   static async login(Email: string, password: string): Promise<User | null> {
     const request = pool.request();
 
@@ -28,7 +26,7 @@ export class AuthService {
       throw new CustomError(401, 'Identifiants non valides');
     } 
 
-    delete user.Mdepasse; // Supprime le mot de passe du résultat
+    delete user.Mdepasse; // Supprime le mot de passe du résultat, pour des raisons de sécurité
     return user;
   }
 }

@@ -6,20 +6,25 @@ import { generateNextId } from '../utils/idUtils';
 import { parseDateString, isValidDate, convertToSqlDate } from '../utils/dateUtils';
 
 export class EventService {
-    /**
-     * Récupère tous les événements
-     */
+
+    //Récupère tous les événements 
     static async getAllEvents(): Promise<Event[]> {
         const result = await pool.request().query(`
             SELECT * FROM Evenements
             ORDER BY Horodate ASC
         `);
-        return result.recordset as Event[];
+        return result.recordset.map(event => {
+            if (event.Image) {
+                if (!event.Image.startsWith('http')) {
+                    event.Image = `${process.env.API_URL || 'http://localhost:3000'}/uploads/events/${event.Image}`;
+                }
+            }
+            return event;
+        });
     }
 
-    /**
-     * Récupère les détails d'un événement par ID
-     */
+    
+    //Récupère les détails d'un événement par ID
     static async getEventById(IdEvenement: string): Promise<any | null> {
         const result = await pool.request()
             .input('IdEvenement', mssql.NChar(10), IdEvenement)
@@ -42,17 +47,20 @@ export class EventService {
             `);
             
         if (result.recordset.length === 0) return null;
-        return result.recordset[0];
+        const event = result.recordset[0];
+    
+        // Ajouter l'URL complète à l'image
+        if (event.Image && !event.Image.startsWith('http')) {
+            event.Image = `${process.env.API_URL || 'http://localhost:3000'}/uploads/events/${event.Image}`;
+        }
+        
+        return event;
     }
 
-    /**
-     * Crée un nouvel événement
-     */
+   // Créer un nouvel événement
     static async createEvent(eventData: Partial<Event>): Promise<Event> {
-        // Génère Id avec generateNextId
         const newId = await generateNextId('Evenements', 'IdEvenement');
 
-        // Vérifie et convertit la date
         let horodate: string;
         if (eventData.Horodate) {
             const dateObj = new Date(eventData.Horodate);
@@ -109,9 +117,7 @@ export class EventService {
         };
     }
 
-    /**
-     * Met à jour un événement existant
-     */
+    // Met à jour un événement existant
     static async updateEvent(id: string, updates: Partial<Event>): Promise<void> {
     
         const existing = await this.getEventById(id);
@@ -183,9 +189,7 @@ export class EventService {
         `);
     }
 
-    /**
-     * Supprime un événement
-     */
+    // Supprime un événement 
     static async deleteEvent(id: string): Promise<void> {
         const result = await pool.request()
             .input('IdEvenement', mssql.NChar(10), id)

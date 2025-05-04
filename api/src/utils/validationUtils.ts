@@ -2,9 +2,8 @@ import { User } from "../interfaces/User";
 import { Event } from "../interfaces/Event";
 import { isValidDate, parseDateString } from "../utils/dateUtils";
 
-/**
- * Valide les données de connexion
- */
+
+//Valide les données de connexion
 export function validateLoginInput(Email: string, password: string): string[] {
     const errors: string[] = [];
     
@@ -22,9 +21,8 @@ if (!password || password.length < 6) {
 }
 
 
-/**
- * Valide les données d'un événement lors de la création
- */
+
+//Valide les données d'un événement lors de la création
 export function validateEventInput(event: Partial<Event>): string[] {
     const errors: string[] = [];
     
@@ -81,9 +79,8 @@ export function validateEventInput(event: Partial<Event>): string[] {
     return errors;
 }
 
-/**
- * Valide les données d'un événement lors de la mise à jour
- */
+
+//Valide les données d'un événement lors de la mise à jour
 export function validateEventUpdateInput(event: Partial<Event>): string[] {
     const errors: string[] = [];
     

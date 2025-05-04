@@ -1,31 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
-import { MatCardModule } from '@angular/material/card';
 import { MatPaginatorModule, PageEvent } from '@angular/material/paginator';
-import { MatIconModule } from '@angular/material/icon';
-import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
-import { MatButtonModule } from '@angular/material/button';
+import { MaterialModule } from '../../../shared/material/material.module';
 import { MatDividerModule } from '@angular/material/divider';
-import { forkJoin, of } from 'rxjs';
-import { catchError, finalize } from 'rxjs/operators';
-
+import { of } from 'rxjs';
+import { catchError} from 'rxjs/operators';
 import { EventsService } from '../../../core/api/events.service';
 import { HeaderTitleService } from '../../../core/utils/header-title.service';
-import { Event } from '../../../core/models/event.model';
+import { MTGEvent } from '../../../core/models/event.model';
 import { DatePipe } from '@angular/common';
-import { environment } from '../../../../environments/environment';
+
 
 @Component({
   selector: 'app-home',
   standalone: true,
   imports: [
     CommonModule,
-    MatCardModule,
+    MaterialModule,
     MatPaginatorModule,
-    MatIconModule,
-    MatProgressSpinnerModule,
-    MatButtonModule,
     MatDividerModule,
     DatePipe
   ],
@@ -33,8 +26,8 @@ import { environment } from '../../../../environments/environment';
   styleUrls: ['./home.component.scss']
 })
 export class HomeComponent implements OnInit {
-  events: Event[] = [];
-  filteredEvents: Event[] = [];
+  events: MTGEvent[] = [];
+  filteredEvents: MTGEvent[] = [];
   loading = true;
   error = false;
   
@@ -96,7 +89,7 @@ export class HomeComponent implements OnInit {
     this.router.navigate(['/events', eventId]);
   }
 
-  getEventImage(event: Event): string {
+  getEventImage(event: MTGEvent): string {
     if (event.Image) {
       return event.Image;
     } else {

@@ -1,7 +1,6 @@
 import { pool } from '../config/dbConfig';
 
 // Fonction pour générer un nouvel ID basé sur le nom de la table et le nom de la colonne d'ID
-
 export async function generateNextId(tableName: string, idColumnName: string): Promise<string> {
   const prefix = tableName.toLowerCase().substring(0, 3);
   const request = pool.request();

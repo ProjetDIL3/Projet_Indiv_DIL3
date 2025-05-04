@@ -8,8 +8,9 @@ import CustomError from '../utils/CustomError';
 import { validateLoginInput } from '../utils/validationUtils';
 
 
-
 export class AuthController {
+
+    // POST /login
     static async login(req: Request, res: Response, next: NextFunction) {
         try {
             const { Email, password } = req.body;
@@ -50,6 +51,7 @@ export class AuthController {
         }
     }
 
+    // POST /refresh-token
     static async refreshToken(req: Request, res: Response, next: NextFunction) {
         try {
             const { refreshToken } = req.body;
@@ -71,7 +73,9 @@ export class AuthController {
             next(error); 
         }
     } 
-    
+
+
+    // POST /logout
     static async logout(req: Request, res: Response, next: NextFunction) {
         try {
             const { refreshToken } = req.body;

@@ -2,9 +2,7 @@ import { Request, Response, NextFunction } from 'express';
 import CustomError from './CustomError';
 import { UserService } from '../services/UserService';
 
-/**
- * Middleware pour vérifier si l'utilisateur a le rôle d'admin
- */
+// Middleware pour vérifier si l'utilisateur a le rôle d'administrateur
 export const requireAdminRole = async (req: Request, res: Response, next: NextFunction): Promise<void> => {
   try {
     const userId = req.user?.userId;

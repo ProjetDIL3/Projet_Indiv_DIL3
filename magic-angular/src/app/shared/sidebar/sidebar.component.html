@@ -1,1 +1,28 @@
-<p>sidebar works!</p>
+<div class="sidebar">
+    <div class="sidebar-content">
+      <div class="sidebar-header">
+
+      </div>
+      
+      <mat-divider></mat-divider>
+      
+      <div class="sidebar-actions">
+        <a mat-button class="sidebar-button" routerLink="/admin/dashboard">
+          <mat-icon>dashboard</mat-icon>
+          <span>Tableau de bord</span>
+        </a>
+        
+        <a mat-button class="sidebar-button" routerLink="/admin/event-form">
+          <mat-icon>add_circle</mat-icon>
+          <span>Ajouter un événement</span>
+        </a>
+        
+        <mat-divider></mat-divider>
+        
+        <button mat-button class="sidebar-button logout-button" (click)="logout()">
+          <mat-icon>exit_to_app</mat-icon>
+          <span>Se déconnecter</span>
+        </button>
+      </div>
+    </div>
+  </div>

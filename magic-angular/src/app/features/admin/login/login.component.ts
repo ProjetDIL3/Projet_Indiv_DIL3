@@ -4,14 +4,13 @@ import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angula
 import { Router } from '@angular/router';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
-import { MatButtonModule } from '@angular/material/button';
-import { MatCardModule } from '@angular/material/card';
-import { MatIconModule } from '@angular/material/icon';
+import { MaterialModule } from '../../../shared/material/material.module';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { AuthService } from '../../../core/auth/auth.service';
 import { HttpErrorResponse } from '@angular/common/http';
 import { ErrorService } from '../../../core/utils/error.service';
+
 
 @Component({
   selector: 'app-login',
@@ -21,9 +20,7 @@ import { ErrorService } from '../../../core/utils/error.service';
     ReactiveFormsModule,
     MatInputModule,
     MatFormFieldModule,
-    MatButtonModule,
-    MatCardModule,
-    MatIconModule,
+    MaterialModule,
     MatProgressBarModule,
     MatSnackBarModule
   ],
@@ -49,6 +46,8 @@ export class LoginComponent {
     });
   }
 
+
+  // Methode pour soumettre le formulaire de connexion
   onSubmit(): void {
     
     this.serverErrors = [];

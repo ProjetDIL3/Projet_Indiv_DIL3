@@ -1,4 +1,3 @@
-// src/utils/jwtUtils.ts
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../interfaces/User';

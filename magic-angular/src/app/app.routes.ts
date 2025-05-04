@@ -1,5 +1,6 @@
 import { Routes } from '@angular/router';
 import { adminGuard } from './core/auth/auth.guard';
+import { AdminLayoutComponent } from './features/admin/admin-layout.component';
 
 export const routes: Routes = [
   // Routes publiques
@@ -16,9 +17,10 @@ export const routes: Routes = [
     loadComponent: () => import('./features/admin/login/login.component').then(m => m.LoginComponent)
   },
   
-  // Routes administratives (protégées)
+  // Routes administratives (protégées) - Nested routes pour le layout admin
   {
     path: 'admin',
+    component: AdminLayoutComponent,  
     canActivate: [adminGuard],
     children: [
       {
@@ -28,15 +30,18 @@ export const routes: Routes = [
       },
       {
         path: 'dashboard',
-        loadComponent: () => import('./features/admin/admin-board/admin-board.component').then(m => m.AdminBoardComponent)
+        loadComponent: () => import('./features/admin/admin-board/admin-board.component')
+          .then(m => m.AdminBoardComponent)
       },
       {
         path: 'event-form',
-        loadComponent: () => import('./features/admin/event-form/event-form.component').then(m => m.EventFormComponent)
+        loadComponent: () => import('./features/admin/event-form/event-form.component')
+          .then(m => m.EventFormComponent)
       },
       {
         path: 'event-form/:id',
-        loadComponent: () => import('./features/admin/event-form/event-form.component').then(m => m.EventFormComponent)
+        loadComponent: () => import('./features/admin/event-form/event-form.component')
+          .then(m => m.EventFormComponent)
       }
     ]
   },

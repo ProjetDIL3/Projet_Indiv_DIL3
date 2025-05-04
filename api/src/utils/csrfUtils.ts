@@ -2,7 +2,12 @@ import { Request, Response, NextFunction } from 'express';
 import { v4 as uuidv4 } from 'uuid';
 import CustomError from './CustomError';
 
-const csrfTokens = new Map<string, string>();
+interface CSRFTokenInfo {
+  token: string;
+  expiresAt: Date;
+}
+
+const csrfTokens = new Map<string, CSRFTokenInfo>();
 
 export const csrfUtils = {
   generateCSRFToken(): string {
@@ -10,11 +15,21 @@ export const csrfUtils = {
   },
 
   storeCSRFToken(userId: string, token: string): void {
-    csrfTokens.set(userId, token);
+    const expiresAt = new Date();
+    expiresAt.setMinutes(expiresAt.getMinutes() + 20);
+    csrfTokens.set(userId, { token, expiresAt });
   },
 
   getCSRFToken(userId: string): string | undefined {
-    return csrfTokens.get(userId);
+    const tokenInfo = csrfTokens.get(userId);
+    if (!tokenInfo) return undefined;
+    
+    if (new Date() > tokenInfo.expiresAt) {
+      this.deleteCSRFToken(userId);
+      return undefined;
+    }
+    
+    return tokenInfo.token;
   },
 
   deleteCSRFToken(userId: string): void {
@@ -22,7 +37,15 @@ export const csrfUtils = {
   },
 
   validateCSRFToken(userId: string, token: string): boolean {
-    return csrfTokens.get(userId) === token;
+    const storedToken = csrfTokens.get(userId);
+    if (!storedToken) return false;
+    
+    if (new Date() > storedToken.expiresAt) {
+      this.deleteCSRFToken(userId);
+      return false;
+    }
+    
+    return storedToken.token === token;
   },
 
   csrfProtection(req: Request, res: Response, next: NextFunction): void {
@@ -31,8 +54,13 @@ export const csrfUtils = {
     const userId = req.user?.userId;
     const csrfToken = req.headers['x-xsrf-token'] as string;
 
+    if (userId && !this.getCSRFToken(userId) && csrfToken) {
+      this.storeCSRFToken(userId, csrfToken);
+      return next();
+    }
+
     if (!userId || !csrfToken || !this.validateCSRFToken(userId, csrfToken)) {
-      return next(new CustomError(403, 'Token CSRF pas valide'));
+      return next(new CustomError(403, 'Token CSRF pas valide ou expiré'));
     }
     next();
   }

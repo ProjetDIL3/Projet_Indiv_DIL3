@@ -1,5 +1,6 @@
 import { pool } from '../config/dbConfig';
 
+// Service pour gérer les tokens de rafraîchissement
 export const refreshTokenService = {
     async save(tokenId: string, userId: string, expiresAt: Date): Promise<void> {
         await pool.request()

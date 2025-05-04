@@ -1,4 +1,4 @@
-export interface Event {
+export interface MTGEvent {
   IdEvenement: string;
   Nom: string;
   Description?: string;
@@ -9,7 +9,7 @@ export interface Event {
   Longitude: number;
   NomContact?: string;
   Email: string;
-  Image?: string;
+  Image?: string | null;
   IdUtilisateur: string;
   IdFormat: string;
   IdMagasin?: string;
@@ -26,7 +26,7 @@ export interface Event {
 }
 
 // Pour la création d'un événement.
-export interface EventCreate extends Omit<Event, 'IdEvenement'> {
+export interface EventCreate extends Omit<MTGEvent, 'IdEvenement'> {
   IdEvenement?: string;
 }
 

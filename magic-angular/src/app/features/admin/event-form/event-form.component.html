@@ -1,1 +1,170 @@
-<p>event-form works!</p>
+<div class="event-form-container">
+  <mat-card>
+    <mat-card-header>
+      <mat-card-title>
+        <h1>{{ isEditMode ? 'Modifier un événement' : 'Ajouter un événement' }}</h1>
+      </mat-card-title>
+    </mat-card-header>
+    
+    <mat-card-content>
+      <div *ngIf="isLoading" class="loading-overlay">
+        <mat-spinner diameter="40"></mat-spinner>
+      </div>
+
+      <form [formGroup]="eventForm" (ngSubmit)="saveEvent()">
+        <div class="form-section">
+          <h2>Informations principales</h2>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nom de l'événement</mat-label>
+            <input matInput formControlName="Nom" required>
+            <mat-error>{{ errorService.getFormControlError(eventForm, 'Nom') }}</mat-error>
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Format</mat-label>
+            <mat-select formControlName="IdFormat" required>
+              <mat-option *ngFor="let format of formats" [value]="format.IdFormat">
+                {{ format.NomFormat }}
+              </mat-option>
+            </mat-select>
+            <mat-error>{{ errorService.getFormControlError(eventForm, 'IdFormat') }}</mat-error>
+          </mat-form-field>
+
+          <div class="date-time-container">
+            <mat-form-field appearance="outline">
+              <mat-label>Date</mat-label>
+              <input matInput [matDatepicker]="picker" formControlName="eventDate" required>
+              <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
+              <mat-datepicker #picker></mat-datepicker>
+              <mat-error>{{ errorService.getFormControlError(eventForm, 'eventDate') }}</mat-error>
+            </mat-form-field>
+            
+            <mat-form-field appearance="outline">
+              <mat-label>Heure</mat-label>
+              <input matInput type="time" formControlName="eventTime" required>
+              <mat-error>{{ errorService.getFormControlError(eventForm, 'eventTime') }}</mat-error>
+            </mat-form-field>
+          </div>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Type d'événement</mat-label>
+            <input matInput formControlName="TypeEvenement">
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Prix (€)</mat-label>
+            <input matInput type="number" formControlName="Prix" min="0">
+            <span matTextSuffix>€</span>
+            <mat-error>{{ errorService.getFormControlError(eventForm, 'Prix') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-section">
+          <h2>Informations de contact</h2>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Nom du contact</mat-label>
+            <input matInput formControlName="NomContact">
+          </mat-form-field>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Email de contact</mat-label>
+            <input matInput formControlName="Email" required type="email">
+            <mat-error>{{ errorService.getFormControlError(eventForm, 'Email') }}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="form-section">
+          <h2>Description</h2>
+          
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="Description" rows="5"></textarea>
+          </mat-form-field>
+        </div>
+
+        <div class="form-section">
+          <h2>Image de l'événement</h2>
+          
+          <div class="image-upload-container">
+            <div class="preview-container" *ngIf="imagePreview">
+              <img [src]="imagePreview" alt="Aperçu de l'image" class="image-preview">
+            </div>
+            
+            <button mat-stroked-button type="button" (click)="imageInput.click()" class="upload-btn">
+              <mat-icon>cloud_upload</mat-icon>
+              Sélectionner une image
+            </button>
+            
+            <input hidden type="file" #imageInput (change)="onImageSelected($event)" accept="image/*">
+            
+            <button *ngIf="imagePreview" mat-stroked-button type="button" color="warn" (click)="clearImage()">
+              <mat-icon>delete</mat-icon>
+              Supprimer l'image
+            </button>
+          </div>
+        </div>
+
+        <div class="map-section">
+          <h2>Lieu de l'événement</h2>
+          <p class="map-instruction">Sélectionnez l'emplacement de l'événement</p>
+          
+          <div class="shop-selector">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Sélectionner un magasin</mat-label>
+              <mat-select formControlName="IdMagasin" (selectionChange)="onShopSelect()">
+                <mat-option [value]="null">Aucun</mat-option>
+                <mat-option *ngFor="let shop of shops" [value]="shop.IdMagasin">
+                  {{ shop.Nom }} - {{ shop.Ville }}
+                </mat-option>
+              </mat-select>
+            </mat-form-field>
+          </div>
+          
+          <div class="separator">
+            <span>OU</span>
+          </div>
+          
+          <div class="search-bar">
+            <mat-form-field appearance="outline" class="full-width">
+              <mat-label>Rechercher une adresse</mat-label>
+              <input matInput [(ngModel)]="searchAddress" [ngModelOptions]="{standalone: true}" placeholder="Entrez une adresse" (keyup.enter)="searchLocation()">
+              <button mat-icon-button matSuffix (click)="searchLocation()" [disabled]="isLoading">
+                <mat-icon>search</mat-icon>
+              </button>
+            </mat-form-field>
+          </div>
+          
+          <!-- Carte Leaflet -->
+          <div id="map" class="map-container"></div>
+          
+          <div class="coordinates-display" *ngIf="eventForm.get('Latitude')?.value && eventForm.get('Longitude')?.value">
+            <h3>Coordonnées sélectionnées</h3>
+            <div class="coordinates">
+              <div class="coordinate">
+                <span class="coordinate-label">Latitude:</span>
+                <span class="coordinate-value">{{ eventForm.get('Latitude')?.value | number:'1.6-6' }}</span>
+              </div>
+              <div class="coordinate">
+                <span class="coordinate-label">Longitude:</span>
+                <span class="coordinate-value">{{ eventForm.get('Longitude')?.value | number:'1.6-6' }}</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="formError" class="error-message">
+          {{ formError }}
+        </div>
+      </form>
+    </mat-card-content>
+    
+    <mat-card-actions align="end">
+      <button mat-button color="primary" (click)="cancel()" [disabled]="isLoading">Annuler</button>
+      <button mat-raised-button color="primary" (click)="saveEvent()" [disabled]="isLoading || eventForm.invalid">
+        {{ isEditMode ? 'Enregistrer les modifications' : 'Créer l\'événement' }}
+      </button>
+    </mat-card-actions>
+  </mat-card>
+</div>
