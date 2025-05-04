@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { Observable, from, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, of, throwError } from 'rxjs';
 import { map, catchError } from 'rxjs/operators';
 import * as L from 'leaflet';
-import { EventsService } from '../api/events.service';
 import { Shop } from '../models/shop.model';
+import { environment } from '../../../environments/environment';
 
 @Injectable({
   providedIn: 'root'
@@ -13,7 +14,7 @@ export class MapService {
   private selectedMarker: L.Marker | null = null;
   private shopMarkers: L.Marker[] = [];
 
-  constructor(private eventsService: EventsService) {
+  constructor(private http: HttpClient) {
     this.fixLeafletIcons();
   }
 
@@ -55,11 +56,26 @@ export class MapService {
     L.Marker.prototype.options.icon = iconDefault;
   }
 
+  //Convertir les coordonnées géographiques en adresse
+  reverseGeocode(lat: number, lon: number): Observable<any> {
+    const url = `${environment.apiUrl}/geocoding/reverse-geocode?lat=${lat}&lon=${lon}`;
+
+    return this.http.get<any[]>(url);
+  }
+
+  // Convertir le nom de la ville en coordonnées
+  geocodeCity(address: string, countryCode: string = 'fr'): Observable<any> {
+    const encodedAddress = encodeURIComponent(address);
+    const url = `${environment.apiUrl}/geocoding/geocode?address=${encodedAddress}`;
+
+    return this.http.get(url);
+  }
+
   // Convertir l'adresse d'un magasin en coordonnées
   geocodeShopAddress(shop: Shop): Observable<L.LatLng> {
     const address = `${shop.NumeroRue} ${shop.Rue}, ${shop.CP} ${shop.Ville}, France`;
     
-    return this.eventsService.geocodeCity(address).pipe(
+    return this.geocodeCity(address).pipe(
       map(results => {
         if (results && results.length > 0) {
           const result = results[0];
@@ -103,53 +119,37 @@ export class MapService {
     return this.selectedMarker;
   }
 
-  // Obtenir l'adresse d'une position (géocodage inverse)
-  reverseGeocode(position: L.LatLng): Observable<string> {
-    return this.eventsService.reverseGeocode(position.lat, position.lng).pipe(
-      map(result => {
-        if (result && result.address) {
+  // Obtenir l'adresse d'une position (géocodage inverse) 
+  reverseGeocodeAddress(position: L.LatLng): Observable<string> {
+    return this.reverseGeocode(position.lat, position.lng).pipe(
+      map((result: any) => {
+        if (result.address) { 
           return this.formatSimplifiedAddress(result);
         }
         return 'Adresse non disponible';
-      }),
-      catchError(error => {
-        console.error('Erreur lors du géocodage inverse:', error);
-        return of('Erreur de géocodage');
       })
     );
   }
 
   // Formater une adresse de manière simplifiée
-  private formatSimplifiedAddress(nominatimResponse: any): string {
-    if (!nominatimResponse || !nominatimResponse.address) {
-      return 'Adresse non disponible';
-    }
-    
-    const address = nominatimResponse.address;
+  formatSimplifiedAddress(nominatimResponse: any): string {
+    const address = nominatimResponse.address || nominatimResponse; 
+
+    if (!address) return 'Adresse non disponible';
+  
     const parts = [];
-    
-    // Récupérer uniquement les éléments essentiels de l'adresse
-    const houseNumber = address.house_number || '';
-    const road = address.road || address.pedestrian || address.footway || address.path || '';
+    const houseNumber = address.house_number || address.housenumber || '';
+    const road = address.road || address.street || '';
     const postcode = address.postcode || '';
-    const city = address.city || address.town || address.village || address.hamlet || '';
+    const city = address.city || address.town || address.village || '';
     const country = address.country || '';
-    
-    // Construire l'adresse simplifiée
-    if (houseNumber && road) {
-      parts.push(`${houseNumber} ${road}`);
-    } else if (road) {
-      parts.push(road);
-    }
-    
-    if (postcode || city) {
-      parts.push(`${postcode} ${city}`.trim());
-    }
-    
-    if (country) {
-      parts.push(country);
-    }
-    
+  
+    if (houseNumber && road) parts.push(`${houseNumber} ${road}`);
+    else if (road) parts.push(road);
+  
+    if (postcode || city) parts.push(`${postcode} ${city}`.trim());
+    if (country) parts.push(country);
+  
     return parts.join(', ');
   }
 
@@ -172,7 +172,7 @@ export class MapService {
 
   // Rechercher une adresse et centrer la carte dessus
   searchAddress(address: string): Observable<L.LatLng> {
-    return this.eventsService.geocodeCity(address).pipe(
+    return this.geocodeCity(address).pipe(
       map(results => {
         if (!results || results.length === 0) {
           throw new Error('Adresse non trouvée');

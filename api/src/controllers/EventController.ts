@@ -1,5 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import { EventService } from '../services/EventService';
+import { generateEvents } from '../scripts/generateEvents';
 import CustomError from '../utils/CustomError';
 import { validateEventInput, validateEventUpdateInput } from '../utils/validationUtils';
 import fs from 'fs';
@@ -126,7 +127,24 @@ export class EventController {
     }
 
 
-
+    static async generateRandomEvents(req: Request, res: Response): Promise<void> {
+        try {
+          const count = req.body.count || 10; // Nombre d'événements à générer, par défaut 10
+          
+          // Lancer la génération de manière asynchrone
+          await generateEvents(count);
+          
+          res.status(200).json({ 
+            message: `${count} événements ont été générés avec succès.`
+          });
+        } catch (error) {
+          console.error('Erreur lors de la génération des événements:', error);
+          res.status(500).json({ 
+            error: 'Erreur lors de la génération des événements',
+            details: error instanceof Error ? error.message : String(error)
+          });
+        }
+      };
 
 
 
@@ -159,5 +177,6 @@ export class EventController {
             throw new CustomError(500, 'Erreur lors de la sauvegarde de l\'image');
         }
     }
+ 
 
 }

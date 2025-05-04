@@ -17,7 +17,6 @@ import * as L from 'leaflet';
 import { HeaderTitleService } from '../../../core/utils/header-title.service';
 import { AdminEventsService } from '../../../core/api/admin-events.service';
 import { ShopsService } from '../../../core/api/shops.service';
-import { EventsService } from '../../../core/api/events.service';
 import { MapService } from '../../../core/utils/map.service';
 import { ErrorService } from '../../../core/utils/error.service';
 import { FormatService } from '../../../core/api/format.service';
@@ -73,7 +72,6 @@ export class EventFormComponent implements OnInit, AfterViewInit, OnDestroy {
     private headerTitleService: HeaderTitleService,
     private adminEventsService: AdminEventsService,
     private shopsService: ShopsService,
-    private eventsService: EventsService,
     private formatService: FormatService,
     private mapService: MapService,
     public errorService: ErrorService,
@@ -335,11 +333,12 @@ export class EventFormComponent implements OnInit, AfterViewInit, OnDestroy {
     this.mapService.setSelectedMarker(position);
     this.isLoading = true;
 
-    this.mapService.reverseGeocode(position).subscribe({
-      next: (address) => {
+    this.mapService.reverseGeocode(position.lat, position.lng).subscribe({
+      next: (response) => {
         this.isLoading = false;
+        const address = this.mapService.formatSimplifiedAddress(response);
         this.searchAddress = address;
-
+  
         const marker = this.mapService.getSelectedMarker();
         if (marker) {
           marker.bindPopup(`

@@ -2,18 +2,18 @@
     
     <div *ngIf="loading" class="loading-container">
       <mat-spinner diameter="50"></mat-spinner>
-      <p>Loading events...</p>
+      <p>Chargement des événements...</p>
     </div>
   
     <div *ngIf="error" class="error-message">
       <mat-icon>error</mat-icon>
-      <p>Failed to load events. Please try again later.</p>
-      <button mat-raised-button color="primary" (click)="fetchEvents()">Retry</button>
+      <p>Échec du chargement des événements. Veuillez réessayer plus tard.</p>
+      <button mat-raised-button color="primary" (click)="fetchEvents()">Réessayer</button>
     </div>
   
     <div *ngIf="!loading && !error && filteredEvents.length === 0" class="no-events">
       <mat-icon>event_busy</mat-icon>
-      <p>No events found.</p>
+      <p>Aucun événement trouvé.</p>
     </div>
     
     <div class="events-grid">
@@ -35,7 +35,7 @@
             <div class="event-info">
               <div class="info-row" *ngIf="event.IdMagasin">
                 <mat-icon>store</mat-icon>
-                <span>Shop: To be implemented</span>
+                <span>{{ event.MagasinNom }}</span>
               </div>
               
               <div class="info-row">
@@ -45,7 +45,7 @@
               
               <div class="info-row">
                 <mat-icon>location_on</mat-icon>
-                <span *ngIf="!addressMap[event.IdEvenement]">Loading address...</span>
+                <span *ngIf="!addressMap[event.IdEvenement]">Chargement de l'adresse...</span>
                 <span *ngIf="addressMap[event.IdEvenement]">{{ addressMap[event.IdEvenement] }}</span>
               </div>
             </div>
@@ -65,6 +65,6 @@
       [pageSizeOptions]="pageSizeOptions"
       [pageIndex]="pageIndex"
       (page)="onPageChange($event)"
-      aria-label="Select page">
+      aria-label="Sélectionner une page">
     </mat-paginator>
   </div>

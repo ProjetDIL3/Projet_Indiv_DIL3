@@ -12,13 +12,11 @@ const protectedRoutesMiddleware = [
   csrfUtils.csrfProtection.bind(csrfUtils)
 ];
 
-// Route protégée pour la création d'événements
 router.post('/', 
   protectedRoutesMiddleware, 
   EventController.createEvent
 );
 
-// Route protégée pour la mise à jour d'événements
 router.put('/:id', 
   protectedRoutesMiddleware,
   EventController.updateEvent
@@ -29,6 +27,10 @@ router.delete('/:id',
   EventController.deleteEvent
 );
 
+router.post('/generate-events', 
+  protectedRoutesMiddleware,
+  EventController.generateRandomEvents
+);
 
 
 // Route publique (sans middleware)

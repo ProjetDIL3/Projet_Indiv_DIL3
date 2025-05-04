@@ -23,36 +23,5 @@ export class EventsService {
     return this.http.get<MTGEvent>(`${this.apiUrl}/${id}`);
   }
 
-  // Convertir les coordonnées géographiques en adresse
-  reverseGeocode(lat: number, lon: number): Observable<any> {
-    const url = `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lon}&format=json`;
 
-    return this.http.get(url, {
-      headers: {
-        'User-Agent': 'MagicEventsApp'
-      }
-    }).pipe(
-      catchError(error => {
-        console.error('Geocoding error:', error);
-        return throwError(() => new Error('Failed to get address from coordinates'));
-      })
-    );
-  }
-
-
-  // Convertir le nom de la ville en coordonnées
-  geocodeCity(address: string, countryCode: string = 'fr'): Observable<any> {
-    const url = `https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(address)}&format=json&addressdetails=1&limit=5`;
-
-    return this.http.get<any[]>(url, {
-      headers: {
-        'User-Agent': 'MagicEventsApp'
-      }
-    }).pipe(
-      catchError(error => {
-        console.error('Geocoding error:', error);
-        return throwError(() => new Error('Failed to geocode address'));
-      })
-    );
-  }
 }

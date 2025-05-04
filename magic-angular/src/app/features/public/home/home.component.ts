@@ -7,6 +7,7 @@ import { MatDividerModule } from '@angular/material/divider';
 import { of } from 'rxjs';
 import { catchError} from 'rxjs/operators';
 import { EventsService } from '../../../core/api/events.service';
+import { MapService } from '../../../core/utils/map.service';
 import { HeaderTitleService } from '../../../core/utils/header-title.service';
 import { MTGEvent } from '../../../core/models/event.model';
 import { DatePipe } from '@angular/common';
@@ -42,12 +43,13 @@ export class HomeComponent implements OnInit {
 
   constructor(
     private eventsService: EventsService,
+    private mapService: MapService,
     private router: Router,
     private headerTitleService: HeaderTitleService
   ) {}
 
   ngOnInit(): void {
-    this.headerTitleService.setTitle('ÉVENEMENTS MAGIC THE GATHERING');
+    this.headerTitleService.setTitle('ÉVÈNEMENTS MAGIC THE GATHERING');
     this.fetchEvents();
   }
 
@@ -96,6 +98,9 @@ export class HomeComponent implements OnInit {
       return '/images/eventsdefault.png';
     }
   }
+ 
+
+
 
   loadAddressesForCurrentPage(): void {
     this.filteredEvents.forEach(event => {
@@ -103,7 +108,7 @@ export class HomeComponent implements OnInit {
         return;
       }
       
-      this.eventsService.reverseGeocode(event.Latitude, event.Longitude)
+      this.mapService.reverseGeocode(event.Latitude, event.Longitude)
         .pipe(
           catchError(error => {
             console.error(`Erreur lors de la récupération de l'adresse pour l'événement ${event.IdEvenement}:`, error);

@@ -3,15 +3,19 @@ import { Event } from '../interfaces/Event';
 import mssql from 'mssql';
 import CustomError from '../utils/CustomError';
 import { generateNextId } from '../utils/idUtils';
-import { parseDateString, isValidDate, convertToSqlDate } from '../utils/dateUtils';
+import { isValidDate, convertToSqlDateTime } from '../utils/dateUtils';
 
 export class EventService {
 
     //Récupère tous les événements 
     static async getAllEvents(): Promise<Event[]> {
         const result = await pool.request().query(`
-            SELECT * FROM Evenements
-            ORDER BY Horodate ASC
+        SELECT 
+            e.*,
+            m.Nom AS MagasinNom
+        FROM Evenements e
+        LEFT JOIN Magasins m ON e.IdMagasin = m.IdMagasin
+        ORDER BY e.Horodate ASC
         `);
         return result.recordset.map(event => {
             if (event.Image) {
@@ -23,7 +27,7 @@ export class EventService {
         });
     }
 
-    
+
     //Récupère les détails d'un événement par ID
     static async getEventById(IdEvenement: string): Promise<any | null> {
         const result = await pool.request()
@@ -45,19 +49,19 @@ export class EventService {
                 LEFT JOIN Magasins m ON e.IdMagasin = m.IdMagasin
                 WHERE e.IdEvenement = @IdEvenement
             `);
-            
+
         if (result.recordset.length === 0) return null;
         const event = result.recordset[0];
-    
+
         // Ajouter l'URL complète à l'image
         if (event.Image && !event.Image.startsWith('http')) {
             event.Image = `${process.env.API_URL || 'http://localhost:3000'}/uploads/events/${event.Image}`;
         }
-        
+
         return event;
     }
 
-   // Créer un nouvel événement
+    // Créer un nouvel événement
     static async createEvent(eventData: Partial<Event>): Promise<Event> {
         const newId = await generateNextId('Evenements', 'IdEvenement');
 
@@ -67,7 +71,7 @@ export class EventService {
             if (!isValidDate(dateObj)) {
                 throw new CustomError(400, "Date de l'événement invalide");
             }
-            horodate = convertToSqlDate(dateObj);
+            horodate = convertToSqlDateTime(dateObj);
         } else {
             throw new CustomError(400, "La date de l'événement est obligatoire");
         }
@@ -119,7 +123,7 @@ export class EventService {
 
     // Met à jour un événement existant
     static async updateEvent(id: string, updates: Partial<Event>): Promise<void> {
-    
+
         const existing = await this.getEventById(id);
         if (!existing) throw new CustomError(404, "Événement non trouvé");
 
@@ -138,7 +142,7 @@ export class EventService {
             const dateObj = new Date(updates.Horodate);
             if (!isValidDate(dateObj)) throw new CustomError(400, "Date invalide");
             fields.push('Horodate = @Horodate');
-            request.input('Horodate', mssql.DateTime, convertToSqlDate(dateObj));
+            request.input('Horodate', mssql.DateTime, convertToSqlDateTime(dateObj));
         }
         if (updates.Prix !== undefined) {
             fields.push('Prix = @Prix');
@@ -197,5 +201,5 @@ export class EventService {
         if (result.rowsAffected[0] === 0) throw new CustomError(404, "Événement non trouvé");
     }
 
-  
+
 }

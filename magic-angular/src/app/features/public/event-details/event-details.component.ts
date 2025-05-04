@@ -11,8 +11,8 @@ import { of, Subscription } from 'rxjs';
 import * as L from 'leaflet';
 import jsPDF from 'jspdf';
 
-
 import { EventsService } from '../../../core/api/events.service';
+import { MapService } from '../../../core/utils/map.service';
 import { HeaderTitleService } from '../../../core/utils/header-title.service';
 import { MTGEvent } from '../../../core/models/event.model';
 
@@ -40,6 +40,7 @@ export class EventDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
     private route: ActivatedRoute,
     private router: Router,
     private eventsService: EventsService,
+    private mapService: MapService,
     private headerTitleService: HeaderTitleService
   ) {
     this.fixLeafletIcons();
@@ -119,7 +120,7 @@ export class EventDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
   loadAddress(): void {
     if (!this.event) return;
     
-    const sub = this.eventsService.reverseGeocode(this.event.Latitude, this.event.Longitude)
+    const sub = this.mapService.reverseGeocode(this.event.Latitude, this.event.Longitude)
       .pipe(
         catchError(error => {
           console.error('Erreur lors de la récupération de l\'adresse:', error);

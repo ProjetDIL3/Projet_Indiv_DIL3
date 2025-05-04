@@ -45,4 +45,9 @@ export class AdminEventsService {
     
     return this.http.get(nominatimUrl, { params });
   }
+
+  // Méthode pour générer des événements aléatoires
+  generateEvents(count: number = 10): Observable<any> {
+    return this.http.post<any>(`${this.apiUrl}/generate-events`, { count });
+  }
 }

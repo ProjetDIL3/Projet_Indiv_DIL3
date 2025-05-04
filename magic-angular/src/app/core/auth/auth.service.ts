@@ -18,7 +18,8 @@ interface AuthResponse {
 export class AuthService {
   constructor(
     private http: HttpClient,
-    private router: Router
+    private router: Router,
+
   ) {}
   
   login(email: string, password: string): Observable<AuthResponse> {
@@ -101,6 +102,7 @@ export class AuthService {
     localStorage.removeItem('refresh_token');
     localStorage.removeItem('csrf_token');
     localStorage.removeItem('user_data');
+
     
     this.router.navigate(['/login']);
   }

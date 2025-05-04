@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes';
 import eventRoutes from './routes/eventRoutes';
 import formatRoutes from './routes/formatRoutes';
 import shopRoutes from './routes/shopRoutes';
+import geocodingRoutes from './routes/geocodingRoutes';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -44,7 +45,9 @@ app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 app.use('/auth', authRoutes);
 app.use('/events', eventRoutes);
 app.use('/formats', formatRoutes);
-app.use('/shops', shopRoutes); 
+app.use('/shops', shopRoutes);
+app.use('/geocoding', geocodingRoutes);
+
 
 // Custom error
 app.use((err: Error, req: Request, res: Response, next: NextFunction) => { 
